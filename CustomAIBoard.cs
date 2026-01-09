@@ -15,6 +15,10 @@ namespace IctCustomControlBoard
         // true = output, false = input
         private readonly Dictionary<string, bool> portDirections = [];
 
+        // Static flags for readability
+        public static readonly bool output = true;
+        public static readonly bool input = false;
+
         // SetBits: write an 8-bit value to a digital output port
         public void SetBits(string portName, byte value)
         {

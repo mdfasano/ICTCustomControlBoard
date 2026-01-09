@@ -11,11 +11,11 @@ class Program
         {
             while (true)
             {
-                Console.WriteLine("\nSelect a board (0-3) or Q to quit:");
-                Console.WriteLine("0: Board0 (DIO, output)");
-                Console.WriteLine("1: Board1 (DIO, output)");
-                Console.WriteLine("2: Board2 (DIO, input)");
-                Console.WriteLine("3: Board3 (6002, analog + digital)");
+                Console.WriteLine("\nSelect a board (1-4) or Q to quit:");
+                Console.WriteLine("0: Board1 (DIO, output)");
+                Console.WriteLine("1: Board2 (DIO, output)");
+                Console.WriteLine("2: Board3 (DIO, input)");
+                Console.WriteLine("3: Board4 (AI and DIO, analog and digital input)");
                 Console.Write("> ");
 
                 string? input = Console.ReadLine()?.Trim().ToUpper();
@@ -32,16 +32,16 @@ class Program
                     switch (boardIndex)
                     {
                         case 0:
-                            TestDigitalBoard(manager.Board0, "Board0");
-                            break;
-                        case 1:
                             TestDigitalBoard(manager.Board1, "Board1");
                             break;
-                        case 2:
+                        case 1:
                             TestDigitalBoard(manager.Board2, "Board2");
                             break;
+                        case 2:
+                            TestDigitalBoard(manager.Board3, "Board3");
+                            break;
                         case 3:
-                            TestAIBoard(manager.Board3);
+                            TestAIBoard(manager.Board4);
                             break;
                     }
                 }
