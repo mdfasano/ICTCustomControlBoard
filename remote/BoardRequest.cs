@@ -10,7 +10,7 @@ namespace IctCustomControlBoard.Remote
     {
         public int BoardIndex { get; set; }
         public BoardCommand Command { get; set; }
-        public string? Port { get; set; }
+        public int Port { get; set; }
         public byte Value { get; set; }
         public int Channel { get; set; }
     }
