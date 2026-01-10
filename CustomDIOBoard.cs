@@ -6,10 +6,36 @@ using NationalInstruments.DAQmx;
 // also should report its device name when asked
 namespace IctCustomControlBoard
 {
-    public class CustomDIOBoard(string deviceName) : IDisposable
+    public class CustomDIOBoard : IDisposable
     {
-        private readonly string deviceName = deviceName;
+        private readonly string _deviceName;
 
+        public CustomDIOBoard(string deviceName)
+        {
+            _deviceName = deviceName;
+
+            // Configure ports once during construction
+            switch (_deviceName)
+            {
+                case "Dev1":
+                    ConfigurePort("port0", output);
+                    ConfigurePort("port1", output);
+                    ConfigurePort("port2", output);
+                    break;
+
+                case "Dev2":
+                    ConfigurePort("port0", output);
+                    ConfigurePort("port1", output);
+                    ConfigurePort("port2", output);
+                    break;
+                case "Dev3":
+                    ConfigurePort("port0", input);
+                    ConfigurePort("port1", input);
+                    ConfigurePort("port2", input);
+                    break;
+            }
+
+        }
         // true = output, false = input
         private readonly Dictionary<string, bool> portDirections = [];
 
@@ -29,7 +55,7 @@ namespace IctCustomControlBoard
 
 
             using NationalInstruments.DAQmx.Task doTask = new();
-            string channel = $"{deviceName}/{portName}";
+            string channel = $"{_deviceName}/{portName}";
 
             doTask.DOChannels.CreateChannel(
                 channel,
@@ -39,7 +65,7 @@ namespace IctCustomControlBoard
             DigitalSingleChannelWriter writer = new(doTask.Stream);
             writer.WriteSingleSamplePort(true, value);
 
-            Console.WriteLine($"[{deviceName}] Set {portName} = 0x{value:X2}");
+            Console.WriteLine($"[{_deviceName}] Set {portName} = 0x{value:X2}");
         }
 
         // GetBits: read an 8-bit value from a digital input port
@@ -54,7 +80,7 @@ namespace IctCustomControlBoard
 
 
             using NationalInstruments.DAQmx.Task diTask = new();
-            string channel = $"{deviceName}/{portName}";
+            string channel = $"{_deviceName}/{portName}";
 
             diTask.DIChannels.CreateChannel(
                 channel,
@@ -64,29 +90,29 @@ namespace IctCustomControlBoard
             DigitalSingleChannelReader reader = new(diTask.Stream);
             byte value = reader.ReadSingleSamplePortByte();
 
-            Console.WriteLine($"[{deviceName}] Read {portName} = 0x{value:X2}");
+            Console.WriteLine($"[{_deviceName}] Read {portName} = 0x{value:X2}");
             return value;
         }
 
         // GetIOID: returns device name
         public string GetIOID()
         {
-            return deviceName;
+            return _deviceName;
         }
 
         public void ConfigurePort(string portName, bool isOutput = false)
         {
             using NationalInstruments.DAQmx.Task configTask = new();
-            string channel = $"{deviceName}/{portName}";
+            string channel = $"{_deviceName}/{portName}";
             if (isOutput)
             {
                 configTask.DOChannels.CreateChannel(channel, "", ChannelLineGrouping.OneChannelForAllLines);
-                Console.WriteLine($"[{deviceName}] {portName} configured as OUTPUT");
+                Console.WriteLine($"[{_deviceName}] {portName} configured as OUTPUT");
             }
             else
             {
                 configTask.DIChannels.CreateChannel(channel, "", ChannelLineGrouping.OneChannelForAllLines);
-                Console.WriteLine($"[{deviceName}] {portName} configured as INPUT");
+                Console.WriteLine($"[{_deviceName}] {portName} configured as INPUT");
             }
 
             configTask.Start();

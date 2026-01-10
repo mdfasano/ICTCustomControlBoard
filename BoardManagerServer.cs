@@ -27,38 +27,32 @@ namespace IctCustomControlBoard
 
             while (true)
             {
-                using (NamedPipeServerStream pipe = new NamedPipeServerStream("BoardPipe", PipeDirection.InOut))
+                using NamedPipeServerStream pipe = new("BoardPipe", PipeDirection.InOut);
+                pipe.WaitForConnection();
+                try
                 {
-                    pipe.WaitForConnection();
-                    try
-                    {
-                        using (var sr = new StreamReader(pipe))
-                        using (var sw = new StreamWriter(pipe) { AutoFlush = true })
-                        {
-                            // Read JSON request from client
-                            string jsonRequest = sr.ReadLine()!;
-                            BoardRequest request = JsonSerializer.Deserialize<BoardRequest>(jsonRequest)!;
+                    using var sr = new StreamReader(pipe);
+                    using var sw = new StreamWriter(pipe) { AutoFlush = true };
+                    // Read JSON request from client
+                    string jsonRequest = sr.ReadLine()!;
+                    BoardRequest request = JsonSerializer.Deserialize<BoardRequest>(jsonRequest)!;
 
-                            // Process the request
-                            BoardResponse response = ProcessRequest(request);
+                    // Process the request
+                    BoardResponse response = ProcessRequest(request);
 
-                            // Send JSON response back
-                            string jsonResponse = JsonSerializer.Serialize(response);
-                            sw.WriteLine(jsonResponse);
-                        }
-                    }
-                    catch (Exception ex)
+                    // Send JSON response back
+                    string jsonResponse = JsonSerializer.Serialize(response);
+                    sw.WriteLine(jsonResponse);
+                }
+                catch (Exception ex)
+                {
+                    using var sw = new StreamWriter(pipe) { AutoFlush = true };
+                    var errorResponse = new BoardResponse
                     {
-                        using (var sw = new StreamWriter(pipe) { AutoFlush = true })
-                        {
-                            var errorResponse = new BoardResponse
-                            {
-                                Success = false,
-                                Message = ex.Message
-                            };
-                            sw.WriteLine(JsonSerializer.Serialize(errorResponse));
-                        }
-                    }
+                        Success = false,
+                        Message = ex.Message
+                    };
+                    sw.WriteLine(JsonSerializer.Serialize(errorResponse));
                 }
             }
         }
