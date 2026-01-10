@@ -55,7 +55,7 @@ The server listens on a named pipe and executes commands requested by clients.
   
 ### 2. Install the Board manager server to run locally
 - [Download](https://github.com/mdfasano/ICTCustomControlBoard/tree/creating-persistent-server) from GitHub
-- for the server to run, you need the following files in a directory together: 
+- for the server to run, you need: 
 ```
 BoardManagerServer.exe
 IctCustomControlBoard.dll
