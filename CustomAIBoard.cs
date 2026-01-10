@@ -8,10 +8,17 @@ using System.DirectoryServices;
 // also should report its device name when asked
 namespace IctCustomControlBoard
 {
-    public class CustomAIBoard(string deviceName) : IDisposable
+    public class CustomAIBoard : IDisposable
     {
-        private readonly string deviceName = deviceName;
+        private readonly string _deviceName;
 
+        public CustomAIBoard(string deviceName)
+        {
+            _deviceName = deviceName;
+            ConfigurePort("port0", input);
+            ConfigurePort("port1", input);
+            ConfigurePort("port2", input);
+        }
         // true = output, false = input
         private readonly Dictionary<string, bool> portDirections = [];
 
@@ -30,7 +37,7 @@ namespace IctCustomControlBoard
                 throw new InvalidOperationException($"Cannot write to {portName}: port is configured as INPUT.");
 
             using NationalInstruments.DAQmx.Task doTask = new();
-            string channel = $"{deviceName}/{portName}";
+            string channel = $"{_deviceName}/{portName}";
 
             doTask.DOChannels.CreateChannel(
                 channel,
@@ -44,7 +51,7 @@ namespace IctCustomControlBoard
 
 
             // debug statement: remove later
-            Console.WriteLine($"[{deviceName}] Set {portName} = 0x{value:X2}");
+            Console.WriteLine($"[{_deviceName}] Set {portName} = 0x{value:X2}");
         }
 
         // GetBits: read an 8-bit value from a digital input port
@@ -58,7 +65,7 @@ namespace IctCustomControlBoard
                 throw new InvalidOperationException($"Cannot read from {portName}: port is configured as OUTPUT.");
 
             using NationalInstruments.DAQmx.Task diTask = new();
-            string channel = $"{deviceName}/{portName}";
+            string channel = $"{_deviceName}/{portName}";
 
             diTask.DIChannels.CreateChannel(
                 channel,
@@ -69,7 +76,7 @@ namespace IctCustomControlBoard
             byte value = reader.ReadSingleSamplePortByte();
 
             // debug statement: remove later
-            Console.WriteLine($"[{deviceName}] Read {portName} = 0x{value:X2}");
+            Console.WriteLine($"[{_deviceName}] Read {portName} = 0x{value:X2}");
             return value;
         }
 
@@ -77,7 +84,7 @@ namespace IctCustomControlBoard
         public double GetVoltage(int channel)
         {
             using NationalInstruments.DAQmx.Task aiTask = new NationalInstruments.DAQmx.Task();
-            string channelName = $"{deviceName}/ai{channel}";
+            string channelName = $"{_deviceName}/ai{channel}";
 
             aiTask.AIChannels.CreateVoltageChannel(
                 channelName,
@@ -90,23 +97,23 @@ namespace IctCustomControlBoard
             double voltage = reader.ReadSingleSample();
 
             // debug statement: remove later
-            Console.WriteLine($"[{deviceName}] CH{channel} = {voltage:F3} V");
+            Console.WriteLine($"[{_deviceName}] CH{channel} = {voltage:F3} V");
             return voltage;
         }
 
         public void ConfigurePort(string portName, bool isOutput)
         {
             using NationalInstruments.DAQmx.Task configTask = new();
-            string channel = $"{deviceName}/{portName}";
+            string channel = $"{_deviceName}/{portName}";
             if (isOutput)
             {
                 configTask.DOChannels.CreateChannel(channel, "", ChannelLineGrouping.OneChannelForAllLines);
-                Console.WriteLine($"[{deviceName}] {portName} configured as OUTPUT");
+                Console.WriteLine($"[{_deviceName}] {portName} configured as OUTPUT");
             }
             else
             {
                 configTask.DIChannels.CreateChannel(channel, "", ChannelLineGrouping.OneChannelForAllLines);
-                Console.WriteLine($"[{deviceName}] {portName} configured as INPUT");
+                Console.WriteLine($"[{_deviceName}] {portName} configured as INPUT");
             }
 
             configTask.Start();
@@ -119,7 +126,7 @@ namespace IctCustomControlBoard
         // GetIOID: returns device name
         public string GetIOID()
         {
-            return deviceName;
+            return _deviceName;
         }
 
         public void Dispose()

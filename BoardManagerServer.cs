@@ -65,10 +65,10 @@ namespace IctCustomControlBoard
             {
                 switch (request.BoardIndex)
                 {
-                    case 0: HandleBoard(board1, request, response); break;
-                    case 1: HandleBoard(board2, request, response); break;
-                    case 2: HandleBoard(board3, request, response); break;
-                    case 3: HandleBoard(board4, request, response); break;
+                    case 1: HandleBoard(board1, request, response); break;
+                    case 2: HandleBoard(board2, request, response); break;
+                    case 3: HandleBoard(board3, request, response); break;
+                    case 4: HandleBoard(board4, request, response); break;
                     default: throw new ArgumentException("Invalid board index");
                 }
 
@@ -87,12 +87,16 @@ namespace IctCustomControlBoard
         {
             switch (request.Command)
             {
-                case BoardCommand.GetBits: response.Bits = board.GetBits(request.Port!); break;
-                case BoardCommand.SetBits: board.SetBits(request.Port!, request.Value); break;
+                case BoardCommand.GetBits: response.Bits = board.GetBits(PortNumberToName(request.Port!)); break;
+                case BoardCommand.SetBits: board.SetBits(PortNumberToName(request.Port!), request.Value); break;
                 case BoardCommand.GetVoltage: response.Voltage = board.GetVoltage(request.Channel); break;
                 case BoardCommand.GetIOID: response.Message = board.GetIOID(); break;
                 default: throw new ArgumentException("Unknown command");
             }
+        }
+        private static string PortNumberToName(int portNumber)
+        {
+            return $"port{portNumber}";
         }
     }
 }
