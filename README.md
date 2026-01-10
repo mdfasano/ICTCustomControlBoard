@@ -54,15 +54,19 @@ The server listens on a named pipe and executes commands requested by clients.
   - Device numbers should map to the numbers used in the [project design spreadsheet](https://docs.google.com/spreadsheets/d/1UBV6FewfMPBUVl1tw0vITm_1WhsL8d6j/edit?gid=1023092147#gid=1023092147)
   
 ### 2. Install the Board manager server to run locally
-- [Download](https://github.com/mdfasano/ICTCustomControlBoard/tree/creating-persistent-server) from GitHub
-- for the server to run, you need the following files in a directory together: 
+1. [Download]() from GitHub
+2. extract the project files
+3. open a Powershell window and navigate to the project folder
+4. run the following commands in Powershell
+
 ```
-BoardManagerServer.exe
-IctCustomControlBoard.dll
-NationalInstruments.DAQmx.dll
-NationalInstruments.Common.dll
-IctCustomControlBoard.runtimeconfig.json
+dotnet restore
+dotnet publish IctCustomControlBoard.csproj -c Release -r win-x86 --self-contained false -o .\publish
+cd Publish
+.\IctCustomControlBoard.exe
 ```
+5. you should now have a server running and see text like 
+`Board Manager Server Running...`
 
 ### 3. Include the IctCustomControlBoard library as a dependency in your project
 - This allows you to send requests to the server via a custom `BoardRequest` object, detailed in the [usage](#usage) section 
