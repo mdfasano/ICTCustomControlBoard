@@ -54,7 +54,7 @@ The server listens on a named pipe and executes commands requested by clients.
   - Device numbers should map to the numbers used in the [project design spreadsheet](https://docs.google.com/spreadsheets/d/1UBV6FewfMPBUVl1tw0vITm_1WhsL8d6j/edit?gid=1023092147#gid=1023092147)
   
 ### 2. Install the Board manager server to run locally
-1. [Download]() from GitHub
+1. [Download](https://github.com/mdfasano/ICTCustomControlBoard/archive/refs/heads/main.zip) from GitHub
 2. extract the project files
 3. open a Powershell window and navigate to the project folder
 4. run the following commands in Powershell
