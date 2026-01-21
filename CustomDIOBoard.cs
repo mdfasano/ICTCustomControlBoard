@@ -64,8 +64,6 @@ namespace IctCustomControlBoard
 
             DigitalSingleChannelWriter writer = new(doTask.Stream);
             writer.WriteSingleSamplePort(true, value);
-
-            Console.WriteLine($"[{_deviceName}] Set {portName} = 0x{value:X2}");
         }
 
         // GetBits: read an 8-bit value from a digital input port
@@ -90,7 +88,6 @@ namespace IctCustomControlBoard
             DigitalSingleChannelReader reader = new(diTask.Stream);
             byte value = reader.ReadSingleSamplePortByte();
 
-            Console.WriteLine($"[{_deviceName}] Read {portName} = 0x{value:X2}");
             return value;
         }
 
