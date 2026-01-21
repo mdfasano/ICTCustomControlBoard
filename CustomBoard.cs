@@ -1,5 +1,6 @@
 ﻿using NationalInstruments.DAQmx;
 using System;
+using System.Configuration;
 using System.DirectoryServices;
 
 // a class for interfacing with the usb-6002 Digital IO board from national instruments.
@@ -8,16 +9,48 @@ using System.DirectoryServices;
 // also should report its device name when asked
 namespace IctCustomControlBoard
 {
-    public class CustomAIBoard : IDisposable
+    public class CustomBoard : IDisposable
     {
         private readonly string _deviceName;
+        private readonly bool isAnalogInputBoard = false;
 
-        public CustomAIBoard(string deviceName)
+        readonly string board1name = ConfigurationManager.AppSettings["Board1Name"] ?? "Dev1";
+        readonly string board2name = ConfigurationManager.AppSettings["Board2Name"] ?? "Dev2";
+        readonly string board3name = ConfigurationManager.AppSettings["Board3Name"] ?? "Dev3";
+        readonly string board4name = ConfigurationManager.AppSettings["Board4Name"] ?? "Dev4";
+
+        public CustomBoard(string deviceName)
         {
             _deviceName = deviceName;
-            ConfigurePort("port0", input);
-            ConfigurePort("port1", input);
-            ConfigurePort("port2", input);
+
+
+            // move these settings to app.config 
+            if (_deviceName == board1name)
+            {
+                ConfigurePort("port0", output);
+                ConfigurePort("port1", output);
+                ConfigurePort("port2", output);
+            }
+            else if (_deviceName == board2name)
+            {
+                ConfigurePort("port0", output);
+                ConfigurePort("port1", output);
+                ConfigurePort("port2", output);
+            }
+            else if (_deviceName == board3name)
+            {
+                ConfigurePort("port0", input);
+                ConfigurePort("port1", input);
+                ConfigurePort("port2", input);
+            }
+            else if (_deviceName == board4name)
+            {
+                ConfigurePort("port0", input);
+                ConfigurePort("port1", input);
+                ConfigurePort("port2", input);
+                isAnalogInputBoard = true;
+            }
+
         }
         // true = output, false = input
         private readonly Dictionary<string, bool> portDirections = [];
@@ -75,15 +108,16 @@ namespace IctCustomControlBoard
             DigitalSingleChannelReader reader = new(diTask.Stream);
             byte value = reader.ReadSingleSamplePortByte();
 
-            // debug statement: remove later
-            Console.WriteLine($"[{_deviceName}] Read {portName} = 0x{value:X2}");
             return value;
         }
 
         // ANALOG INPUT — Read voltage from an AI channel
         public double GetVoltage(int channel)
         {
-            using NationalInstruments.DAQmx.Task aiTask = new NationalInstruments.DAQmx.Task();
+            if (!isAnalogInputBoard)
+                throw new InvalidOperationException(($"{_deviceName}: Cannot read voltage — invalid board type"));
+
+            using NationalInstruments.DAQmx.Task aiTask = new();
             string channelName = $"{_deviceName}/ai{channel}";
 
             aiTask.AIChannels.CreateVoltageChannel(
@@ -96,8 +130,6 @@ namespace IctCustomControlBoard
             AnalogSingleChannelReader reader = new(aiTask.Stream);
             double voltage = reader.ReadSingleSample();
 
-            // debug statement: remove later
-            Console.WriteLine($"[{_deviceName}] CH{channel} = {voltage:F3} V");
             return voltage;
         }
 
@@ -108,12 +140,10 @@ namespace IctCustomControlBoard
             if (isOutput)
             {
                 configTask.DOChannels.CreateChannel(channel, "", ChannelLineGrouping.OneChannelForAllLines);
-                Console.WriteLine($"[{_deviceName}] {portName} configured as OUTPUT");
             }
             else
             {
                 configTask.DIChannels.CreateChannel(channel, "", ChannelLineGrouping.OneChannelForAllLines);
-                Console.WriteLine($"[{_deviceName}] {portName} configured as INPUT");
             }
 
             configTask.Start();
@@ -124,12 +154,34 @@ namespace IctCustomControlBoard
         }
 
         // GetIOID: returns device name
-        public string GetIOID()
+        public BoardInfo GetIOID()
         {
-            return _deviceName;
+            Device board = DaqSystem.Local.LoadDevice(_deviceName);
+
+            string Manufacture_Id = board.ProductType;
+            long Board_number = board.SerialNumber; // not sure this is what we need
+            string Board_port = board.DeviceID;
+
+            BoardInfo info = new (Manufacture_Id, Board_number, Board_port);
+            return info;
         }
 
-        public void Dispose()
+        // struct holding relevant info about the board
+        public readonly struct BoardInfo
+        {
+            public string Manufacture_Id { get; }
+            public long Board_number { get; }
+            public string Board_port { get; }
+
+            public BoardInfo(string manufactureId, long boardNumber, string boardPort)
+            {
+                Manufacture_Id = manufactureId;
+                Board_number = boardNumber;
+                Board_port = boardPort;
+            }
+        }
+
+            public void Dispose()
         {
             // Nothing persistent yet — provided for future resource cleanup
         }
