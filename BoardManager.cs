@@ -78,7 +78,7 @@ namespace IctCustomControlBoard
         }
 
         // returns an array holding four instances of the boardinfo struct
-        public CustomBoard.BoardInfo[] GetBoardInfo ()
+        public CustomBoard.BoardInfo[] GetBoardInfo()
         {
             CustomBoard.BoardInfo board1info = board1.GetIOID();
             CustomBoard.BoardInfo board2info = board2.GetIOID();

@@ -9,7 +9,7 @@ using System.DirectoryServices;
 // also should report its device name when asked
 namespace IctCustomControlBoard
 {
-    public class CustomBoard : IDisposable
+    internal class CustomBoard : IDisposable
     {
         private readonly string _deviceName;
         private readonly bool isAnalogInputBoard = false;
@@ -19,7 +19,7 @@ namespace IctCustomControlBoard
         readonly string board3name = ConfigurationManager.AppSettings["Board3Name"] ?? "Dev3";
         readonly string board4name = ConfigurationManager.AppSettings["Board4Name"] ?? "Dev4";
 
-        public CustomBoard(string deviceName)
+        internal CustomBoard(string deviceName)
         {
             _deviceName = deviceName;
 
@@ -35,7 +35,7 @@ namespace IctCustomControlBoard
         public static readonly bool input = false;
 
         // SetBits: write an 8-bit value to a digital output port
-        public void SetBits(string portName, byte value)
+        internal void SetBits(string portName, byte value)
         {
             // validate that we can write to specified port
             if (!portDirections.TryGetValue(portName, out bool isOutput))
@@ -63,7 +63,7 @@ namespace IctCustomControlBoard
         }
 
         // GetBits: read an 8-bit value from a digital input port
-        public byte GetBits(string portName)
+        internal byte GetBits(string portName)
         {
             // validate that we can read from specified port
             if (!portDirections.TryGetValue(portName, out bool isOutput))
@@ -87,7 +87,7 @@ namespace IctCustomControlBoard
         }
 
         // ANALOG INPUT — Read voltage from an AI channel
-        public double GetVoltage(int channel)
+        internal double GetVoltage(int channel)
         {
             if (!isAnalogInputBoard)
                 throw new InvalidOperationException(($"{_deviceName}: Cannot read voltage — invalid board type"));
@@ -108,7 +108,7 @@ namespace IctCustomControlBoard
             return voltage;
         }
 
-        public void ConfigureBoardPorts(int boardNum)
+        private void ConfigureBoardPorts(int boardNum)
         {
 
 
@@ -124,7 +124,7 @@ namespace IctCustomControlBoard
             }
         }
 
-        public void ConfigureSinglePort(string portName, string direction)
+        private void ConfigureSinglePort(string portName, string direction)
         {
             bool isOutput = GetDirectionFromConfig(direction);
 
@@ -164,7 +164,7 @@ namespace IctCustomControlBoard
         // used to determine which board number we are working with so we can use the 
         // config data appropriately
         // returns an int representing the boardnumber
-        public static int GetBoardNumberFromDeviceName(string deviceName)
+        private static int GetBoardNumberFromDeviceName(string deviceName)
         {
             for (int i = 1; i <= 4; i++)
             {
@@ -181,7 +181,7 @@ namespace IctCustomControlBoard
         }
 
         // GetIOID: returns device name
-        public BoardInfo GetIOID()
+        internal BoardInfo GetIOID()
         {
             Device board = DaqSystem.Local.LoadDevice(_deviceName);
 
