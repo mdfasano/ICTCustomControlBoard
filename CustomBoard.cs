@@ -23,34 +23,9 @@ namespace IctCustomControlBoard
         {
             _deviceName = deviceName;
 
-
-            // move these settings to app.config 
-            if (_deviceName == board1name)
-            {
-                ConfigurePort("port0", output);
-                ConfigurePort("port1", output);
-                ConfigurePort("port2", output);
-            }
-            else if (_deviceName == board2name)
-            {
-                ConfigurePort("port0", output);
-                ConfigurePort("port1", output);
-                ConfigurePort("port2", output);
-            }
-            else if (_deviceName == board3name)
-            {
-                ConfigurePort("port0", input);
-                ConfigurePort("port1", input);
-                ConfigurePort("port2", input);
-            }
-            else if (_deviceName == board4name)
-            {
-                ConfigurePort("port0", input);
-                ConfigurePort("port1", input);
-                ConfigurePort("port2", input);
-                isAnalogInputBoard = true;
-            }
-
+            //get boardnumber from device name
+            int boardNum = GetBoardNumberFromDeviceName(deviceName);
+            ConfigureBoardPorts(boardNum);
         }
         // true = output, false = input
         private readonly Dictionary<string, bool> portDirections = [];
@@ -133,8 +108,26 @@ namespace IctCustomControlBoard
             return voltage;
         }
 
-        public void ConfigurePort(string portName, bool isOutput)
+        public void ConfigureBoardPorts(int boardNum)
         {
+
+
+            if (int.TryParse(ConfigurationManager.AppSettings[$"Board{boardNum}NumPorts"], out int numPorts))
+            {
+                for (int i = 0; i < numPorts; i++)
+                {
+                    string key = $"{_deviceName}_port{i}";
+                    string direction = ConfigurationManager.AppSettings[key] ?? "output";
+
+                    ConfigureSinglePort($"port{i}", direction);
+                }
+            }
+        }
+
+        public void ConfigureSinglePort(string portName, string direction)
+        {
+            bool isOutput = GetDirectionFromConfig(direction);
+
             using NationalInstruments.DAQmx.Task configTask = new();
             string channel = $"{_deviceName}/{portName}";
             if (isOutput)
@@ -151,6 +144,40 @@ namespace IctCustomControlBoard
 
             // Store configuration in dictionary
             portDirections[portName] = isOutput;
+        }
+
+        // convert the strings "output" or "input" to boolean value
+        // output = true, input = false
+        private static bool GetDirectionFromConfig(string key)
+        {
+            string? value = ConfigurationManager.AppSettings[key];
+
+            // Default to input (false) if missing or invalid
+            return value?.Trim().ToLower() switch
+            {
+                "output" => true,
+                "input" => false,
+                _ => false
+            };
+        }
+
+        // used to determine which board number we are working with so we can use the 
+        // config data appropriately
+        // returns an int representing the boardnumber
+        public static int GetBoardNumberFromDeviceName(string deviceName)
+        {
+            for (int i = 1; i <= 4; i++)
+            {
+                string key = $"Board{i}Name";
+                string value = ConfigurationManager.AppSettings[key];
+
+                if (string.Equals(value, deviceName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return i;
+                }
+            }
+
+            throw new Exception($"Device name '{deviceName}' not found in App.config");
         }
 
         // GetIOID: returns device name
