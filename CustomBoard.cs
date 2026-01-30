@@ -180,6 +180,40 @@ namespace IctCustomControlBoard
             throw new Exception($"Device name '{deviceName}' not found in App.config");
         }
 
+        // convert the strings "output" or "input" to boolean value
+        // output = true, input = false
+        private static bool GetDirectionFromConfig(string key)
+        {
+            string? value = ConfigurationManager.AppSettings[key];
+
+            // Default to input (false) if missing or invalid
+            return value?.Trim().ToLower() switch
+            {
+                "output" => true,
+                "input" => false,
+                _ => false
+            };
+        }
+
+        // used to determine which board number we are working with so we can use the 
+        // config data appropriately
+        // returns an int representing the boardnumber
+        public static int GetBoardNumberFromDeviceName(string deviceName)
+        {
+            for (int i = 1; i <= 4; i++)
+            {
+                string key = $"Board{i}Name";
+                string value = ConfigurationManager.AppSettings[key];
+
+                if (string.Equals(value, deviceName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return i;
+                }
+            }
+
+            throw new Exception($"Device name '{deviceName}' not found in App.config");
+        }
+
         // GetIOID: returns device name
         internal BoardInfo GetIOID()
         {
