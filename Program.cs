@@ -24,8 +24,8 @@ namespace BoardTestApp
             {
                 var b = boards[i];
                 Console.WriteLine($"  Board {i + 1}:");
-                Console.WriteLine($"    Manufacturer ID: {b.Manufacture_Id}");
-                Console.WriteLine($"    Board Number: {b.Board_number}");
+                Console.WriteLine($"    Manufacturer ID: {b.Board_type}");
+                Console.WriteLine($"    Board Number: {b.Board_serial_number}");
                 Console.WriteLine($"    Board Port: {b.Board_port}");
             }
             Console.WriteLine();

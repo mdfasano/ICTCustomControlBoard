@@ -90,7 +90,8 @@ namespace IctCustomControlBoard
             return [board1info, board2info, board3info, board4info];
         }
 
-        // GetIOID: returns device name
+        // helper function for GetBoardInfo
+        // populates the given 'info' struct with data from the provided 'board'
         private static void GetSingleBoardInfo(CustomBoard board, out BoardInfo info)
         {
             string Board_type = board.GetBoardType();
@@ -102,18 +103,11 @@ namespace IctCustomControlBoard
         }
 
         // struct holding relevant info about the board
-        public readonly struct BoardInfo
+        public readonly struct BoardInfo(string boardType, long boardSerialNumber, string boardPort)
         {
-            public string Manufacture_Id { get; }
-            public long Board_number { get; }
-            public string Board_port { get; }
-
-            public BoardInfo(string manufactureId, long boardNumber, string boardPort)
-            {
-                Manufacture_Id = manufactureId;
-                Board_number = boardNumber;
-                Board_port = boardPort;
-            }
+            public string Board_type { get; } = boardType; // USB-6002 or USB-6501
+            public long Board_serial_number { get; } = boardSerialNumber; // unique serial identifier
+            public string Board_port { get; } = boardPort; // Internal name of the board. defaults to Dev1, Dev2, etc
         }
     }
 }
