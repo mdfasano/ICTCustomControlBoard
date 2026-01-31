@@ -1,6 +1,7 @@
-﻿using System;
-using System.Configuration;
+﻿using NationalInstruments.DAQmx;
+using System;
 using System.Collections.Generic;
+using System.Configuration;
 
 namespace IctCustomControlBoard
 {
@@ -78,14 +79,41 @@ namespace IctCustomControlBoard
         }
 
         // returns an array holding four instances of the boardinfo struct
-        public CustomBoard.BoardInfo[] GetBoardInfo()
+        public BoardInfo[] GetBoardInfo()
         {
-            CustomBoard.BoardInfo board1info = board1.GetIOID();
-            CustomBoard.BoardInfo board2info = board2.GetIOID();
-            CustomBoard.BoardInfo board3info = board3.GetIOID();
-            CustomBoard.BoardInfo board4info = board4.GetIOID();
+
+            GetSingleBoardInfo(board1, out BoardInfo board1info);
+            GetSingleBoardInfo(board2, out BoardInfo board2info);
+            GetSingleBoardInfo(board3, out BoardInfo board3info);
+            GetSingleBoardInfo(board4, out BoardInfo board4info);
 
             return [board1info, board2info, board3info, board4info];
+        }
+
+        // GetIOID: returns device name
+        private static void GetSingleBoardInfo(CustomBoard board, out BoardInfo info)
+        {
+            string Board_type = board.GetBoardType();
+            long Board_number = board.GetBoardSerialNum();
+            string Board_port = board.GetBoardPort();
+
+            info = new(Board_type, Board_number, Board_port);
+            return;
+        }
+
+        // struct holding relevant info about the board
+        public readonly struct BoardInfo
+        {
+            public string Manufacture_Id { get; }
+            public long Board_number { get; }
+            public string Board_port { get; }
+
+            public BoardInfo(string manufactureId, long boardNumber, string boardPort)
+            {
+                Manufacture_Id = manufactureId;
+                Board_number = boardNumber;
+                Board_port = boardPort;
+            }
         }
     }
 }

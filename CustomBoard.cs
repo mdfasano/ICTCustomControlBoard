@@ -180,66 +180,28 @@ namespace IctCustomControlBoard
             throw new Exception($"Device name '{deviceName}' not found in App.config");
         }
 
-        // convert the strings "output" or "input" to boolean value
-        // output = true, input = false
-        private static bool GetDirectionFromConfig(string key)
-        {
-            string? value = ConfigurationManager.AppSettings[key];
-
-            // Default to input (false) if missing or invalid
-            return value?.Trim().ToLower() switch
-            {
-                "output" => true,
-                "input" => false,
-                _ => false
-            };
-        }
-
-        // used to determine which board number we are working with so we can use the 
-        // config data appropriately
-        // returns an int representing the boardnumber
-        public static int GetBoardNumberFromDeviceName(string deviceName)
-        {
-            for (int i = 1; i <= 4; i++)
-            {
-                string key = $"Board{i}Name";
-                string value = ConfigurationManager.AppSettings[key];
-
-                if (string.Equals(value, deviceName, StringComparison.OrdinalIgnoreCase))
-                {
-                    return i;
-                }
-            }
-
-            throw new Exception($"Device name '{deviceName}' not found in App.config");
-        }
-
-        // GetIOID: returns device name
-        internal BoardInfo GetIOID()
+        // should return the local name of the board being referenced
+        // default is usually 'Dev1' 'Dev2' etc, but can be changed
+        internal string GetBoardPort()
         {
             Device board = DaqSystem.Local.LoadDevice(_deviceName);
 
-            string Manufacture_Id = board.ProductType;
-            long Board_number = board.SerialNumber; // not sure this is what we need
-            string Board_port = board.DeviceID;
+            return board.DeviceID;
+        }
+        // this should return either USB-6002 or USB-6501
+        internal string GetBoardType()
+        {
+            Device board = DaqSystem.Local.LoadDevice(_deviceName);
 
-            BoardInfo info = new (Manufacture_Id, Board_number, Board_port);
-            return info;
+            return board.ProductType;
         }
 
-        // struct holding relevant info about the board
-        public readonly struct BoardInfo
+        // this should return a unique serial identifier for the board
+        internal long GetBoardSerialNum()
         {
-            public string Manufacture_Id { get; }
-            public long Board_number { get; }
-            public string Board_port { get; }
+            Device board = DaqSystem.Local.LoadDevice(_deviceName);
 
-            public BoardInfo(string manufactureId, long boardNumber, string boardPort)
-            {
-                Manufacture_Id = manufactureId;
-                Board_number = boardNumber;
-                Board_port = boardPort;
-            }
+            return board.SerialNumber;
         }
 
             public void Dispose()
