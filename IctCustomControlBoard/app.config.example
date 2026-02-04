@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+	<appSettings>
+		<!-- Board Names -->
+		<add key="Board1Name" value="Dev1"/>
+		<add key="Board2Name" value="Dev2"/>
+		<add key="Board3Name" value="Dev3"/>
+		<add key="Board4Name" value="Dev4"/>
+
+		<!-- Board 1 Port Details -->
+		<add key="Board1NumPorts" value="3"/>
+		<add key="Board1HasAnalogInput" value="false"/>
+		<add key="Board1Port0Direction" value="output" />
+		<add key="Board1Port1Direction" value="output" />
+		<add key="Board1Port2Direction" value="output" />
+
+		<!-- Board 2 Port Details -->
+		<add key="Board2NumPorts" value="3"/>
+		<add key="Board2HasAnalogInput" value="false"/>
+		<add key="Board2Port0Direction" value="output" />
+		<add key="Board2Port1Direction" value="output" />
+		<add key="Board2Port2Direction" value="output" />
+
+		<!-- Board 3 Port Details -->
+		<add key="Board3NumPorts" value="3"/>
+		<add key="Board3HasAnalogInput" value="false"/>
+		<add key="Board3Port0Direction" value="input" />
+		<add key="Board3Port1Direction" value="input" />
+		<add key="Board3Port2Direction" value="input" />
+
+		<!-- Board 4 Port Details -->
+		<add key="Board4NumPorts" value="3"/>
+		<add key="Board4HasAnalogInput" value="true"/>
+		<add key="Board4Port0Direction" value="input" />
+		<add key="Board4Port1Direction" value="input" />
+		<add key="Board4Port2Direction" value="input" />
+	</appSettings>
+</configuration>

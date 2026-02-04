@@ -2,6 +2,7 @@
 using System;
 using System.Configuration;
 using System.DirectoryServices;
+using System.Reflection;
 
 // a class for interfacing with the usb-6002 Digital IO board from national instruments.
 // allows for reading and writing of bits on the device
@@ -23,7 +24,7 @@ namespace IctCustomControlBoard
         {
             _deviceName = deviceName;
 
-            //get boardnumber from device name
+            // get boardnumber from device name
             int boardNum = GetBoardNumberFromDeviceName(deviceName);
             ConfigureBoardPorts(boardNum);
         }
@@ -204,7 +205,7 @@ namespace IctCustomControlBoard
             return board.SerialNumber;
         }
 
-            public void Dispose()
+        public void Dispose()
         {
             // Nothing persistent yet — provided for future resource cleanup
         }

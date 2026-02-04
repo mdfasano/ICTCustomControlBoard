@@ -1,5 +1,4 @@
-﻿using NationalInstruments.DAQmx;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 
@@ -15,7 +14,7 @@ namespace IctCustomControlBoard
 
         public BoardManager()
         {
-            // names are defined in app.config file, default to Dev1, Dev2, etc
+            //names are defined in app.config file, default to Dev1, Dev2, etc
             board1 = new CustomBoard(ConfigurationManager.AppSettings["Board1Name"] ?? "Dev1");
             board2 = new CustomBoard(ConfigurationManager.AppSettings["Board2Name"] ?? "Dev2");
             board3 = new CustomBoard(ConfigurationManager.AppSettings["Board3Name"] ?? "Dev3");
@@ -55,8 +54,8 @@ namespace IctCustomControlBoard
 
             // -------- Board 2 --------
             byte b4_port0 = board4.GetBits("port0");
-            byte b4_port1 = board4.GetBits("port1");
-            byte b4_port2 = board4.GetBits("port2");
+            byte b4_port1 = board4.GetBits("port1"); // Do I care that these ports are 4 bit
+            byte b4_port2 = board4.GetBits("port2"); // and 1 bit in size?
 
             // Pack everything into a single ulong
             ulong packed = 0;
