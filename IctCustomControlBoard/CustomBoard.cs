@@ -61,7 +61,7 @@ namespace IctCustomControlBoard
 
 
             // debug statement: remove later
-            Console.WriteLine($"[{_deviceName}] Set {portName} = 0x{value:X2}");
+            //Console.WriteLine($"[{_deviceName}] Set {portName} = 0x{value:X2}");
         }
 
         // GetBits: read an 8-bit value from a digital input port
@@ -142,7 +142,7 @@ namespace IctCustomControlBoard
             configTask.Start();
             configTask.Stop();
 
-            MessageBox.Show($"portname{portName} getting direction{isOutput}");
+            //MessageBox.Show($"portname{portName} getting direction{isOutput}");
             // Store configuration in dictionary
             portDirections[portName] = isOutput;
         }

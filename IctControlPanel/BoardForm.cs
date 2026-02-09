@@ -67,7 +67,7 @@ namespace IctControlPanel
             outputsContainer.Controls.Add(BuildDeviceSection("Outputs", [
                 ["KT5", "KT6", "KT7", "KT8", "KT9", "KT1", "KT2", "KT3", "KT4"],
                 ["KRG1", "KRG2", "KRG3", "KRG4", "KRG5"],
-                ["KL1", "KL4KL5", "KL7KL8", "KL6KL7KL8"],
+                ["KL1", "KL4KL5", "KL7KL8", "KL6KL7KL8_EN"],
                 ["KRFT", "KCFT1", "KCFT2", "KINJ1"]
             ]));
             mainPanel.Controls.Add(outputsContainer); // attach output group to main panel
