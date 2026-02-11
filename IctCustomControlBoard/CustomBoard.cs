@@ -2,6 +2,7 @@
 using System;
 using System.Configuration;
 using System.DirectoryServices;
+using System.Reflection;
 
 // a class for interfacing with the usb-6002 Digital IO board from national instruments.
 // allows for reading and writing of bits on the device
@@ -23,9 +24,10 @@ namespace IctCustomControlBoard
         {
             _deviceName = deviceName;
 
-            //get boardnumber from device name
+            // get boardnumber from device name
             int boardNum = GetBoardNumberFromDeviceName(deviceName);
             ConfigureBoardPorts(boardNum);
+
         }
         // true = output, false = input
         private readonly Dictionary<string, bool> portDirections = [];
@@ -39,10 +41,10 @@ namespace IctCustomControlBoard
         {
             // validate that we can write to specified port
             if (!portDirections.TryGetValue(portName, out bool isOutput))
-                throw new InvalidOperationException($"Port {portName} not configured.");
+                throw new InvalidOperationException($"Port {portName} on {_deviceName} not configured.");
 
             if (!isOutput)
-                throw new InvalidOperationException($"Cannot write to {portName}: port is configured as INPUT.");
+                throw new InvalidOperationException($"Cannot write to {portName} on {_deviceName}: port is configured as INPUT.");
 
             using NationalInstruments.DAQmx.Task doTask = new();
             string channel = $"{_deviceName}/{portName}";
@@ -59,7 +61,7 @@ namespace IctCustomControlBoard
 
 
             // debug statement: remove later
-            Console.WriteLine($"[{_deviceName}] Set {portName} = 0x{value:X2}");
+            //Console.WriteLine($"[{_deviceName}] Set {portName} = 0x{value:X2}");
         }
 
         // GetBits: read an 8-bit value from a digital input port
@@ -110,13 +112,11 @@ namespace IctCustomControlBoard
 
         private void ConfigureBoardPorts(int boardNum)
         {
-
-
             if (int.TryParse(ConfigurationManager.AppSettings[$"Board{boardNum}NumPorts"], out int numPorts))
             {
                 for (int i = 0; i < numPorts; i++)
                 {
-                    string key = $"{_deviceName}_port{i}";
+                    string key = $"Board{boardNum}Port{i}Direction";
                     string direction = ConfigurationManager.AppSettings[key] ?? "output";
 
                     ConfigureSinglePort($"port{i}", direction);
@@ -142,16 +142,15 @@ namespace IctCustomControlBoard
             configTask.Start();
             configTask.Stop();
 
+            //MessageBox.Show($"portname{portName} getting direction{isOutput}");
             // Store configuration in dictionary
             portDirections[portName] = isOutput;
         }
 
         // convert the strings "output" or "input" to boolean value
         // output = true, input = false
-        private static bool GetDirectionFromConfig(string key)
+        private static bool GetDirectionFromConfig(string value)
         {
-            string? value = ConfigurationManager.AppSettings[key];
-
             // Default to input (false) if missing or invalid
             return value?.Trim().ToLower() switch
             {
@@ -204,7 +203,7 @@ namespace IctCustomControlBoard
             return board.SerialNumber;
         }
 
-            public void Dispose()
+        public void Dispose()
         {
             // Nothing persistent yet — provided for future resource cleanup
         }
