@@ -19,6 +19,8 @@ namespace IctCustomControlBoard
             board2 = new CustomBoard(ConfigurationManager.AppSettings["Board2Name"] ?? "Dev2");
             board3 = new CustomBoard(ConfigurationManager.AppSettings["Board3Name"] ?? "Dev3");
             board4 = new CustomBoard(ConfigurationManager.AppSettings["Board4Name"] ?? "Dev4");
+
+            SetBits((ulong)0); // initialize everything to be off
         }
 
         // assumes setting bits on exactly board1 and board2 for now
