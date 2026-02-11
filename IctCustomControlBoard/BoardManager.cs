@@ -49,12 +49,15 @@ namespace IctCustomControlBoard
         // assumes reading from board3 and board4
         public ulong GetBits()
         {
-            // -------- Board 1 --------
-            byte b3_port0 = board3.GetBits("port0");
-            byte b3_port1 = board3.GetBits("port1");
-            byte b3_port2 = board3.GetBits("port2");
+            // -------- Board 3 --------
+            // this has pull-up resistors, so no signal means high reading
+            // which means we need to invert the readback
+            byte b3_port0 = (byte)~board3.GetBits("port0");
+            byte b3_port1 = (byte)~board3.GetBits("port1");
+            byte b3_port2 = (byte)~board3.GetBits("port2");
 
-            // -------- Board 2 --------
+            // -------- Board 4 --------
+            // this is a different device (6002) and has pull-down resistors instead
             byte b4_port0 = board4.GetBits("port0");
             byte b4_port1 = board4.GetBits("port1"); // Do I care that these ports are 4 bit
             byte b4_port2 = board4.GetBits("port2"); // and 1 bit in size?
