@@ -1,13 +1,10 @@
-﻿using NationalInstruments.DAQmx;
-using System;
+﻿using System;
 using System.Configuration;
-//using System.DirectoryServices;
 using System.Reflection;
 
-// a class for interfacing with the usb-6002 Digital IO board from national instruments.
-// allows for reading and writing of bits on the device
-// allows for reading differential voltages from an analog input
-// also should report its device name when asked
+// This class acts like an IctCustomControlBoard class
+// It exports all the same functionality, but the data it provides
+// is all mock data for the purpose of testing
 namespace IctCustomControlBoard
 {
     internal class CustomBoard : IDisposable
@@ -20,94 +17,93 @@ namespace IctCustomControlBoard
         readonly string board3name = ConfigurationManager.AppSettings["Board3Name"] ?? "Dev3";
         readonly string board4name = ConfigurationManager.AppSettings["Board4Name"] ?? "Dev4";
 
-        internal CustomBoard(string deviceName)
-        {
-            _deviceName = deviceName;
+        // MOCK STATE STORAGE
+        // Holds the current byte value for "port0", "port1", "port2"
+        private Dictionary<string, byte> _portStates = [];
 
-            // get boardnumber from device name
-            int boardNum = GetBoardNumberFromDeviceName(deviceName);
-            ConfigureBoardPorts(boardNum);
+        // Randomizer for simulating input data jitter
+        private Random _random = new Random();
 
-        }
-        // true = output, false = input
+        // Direction configuration: true = output, false = input
         private readonly Dictionary<string, bool> portDirections = [];
 
         // Static flags for readability
         public static readonly bool output = true;
         public static readonly bool input = false;
 
-        // SetBits: write an 8-bit value to a digital output port
+        internal CustomBoard(string deviceName)
+        {
+            _deviceName = deviceName;
+
+            // Initialize the mock ports to 0
+            _portStates["port0"] = 0;
+            _portStates["port1"] = 0;
+            _portStates["port2"] = 0;
+
+            // Get board number from device name
+            try
+            {
+                int boardNum = GetBoardNumberFromDeviceName(deviceName);
+                ConfigureBoardPorts(boardNum);
+            }
+            catch
+            {
+                // Fallback for testing if config is missing
+                Console.WriteLine($"MockBoard: Could not configure ports for {deviceName}. Using defaults.");
+            }
+
+        }
+
+        // SetBits: write an 8-bit value to a specified mock port
         internal void SetBits(string portName, byte value)
         {
+            /* turning direction validation off for mock version
+             * 
             // validate that we can write to specified port
             if (!portDirections.TryGetValue(portName, out bool isOutput))
                 throw new InvalidOperationException($"Port {portName} on {_deviceName} not configured.");
 
             if (!isOutput)
                 throw new InvalidOperationException($"Cannot write to {portName} on {_deviceName}: port is configured as INPUT.");
+             */
 
-            using NationalInstruments.DAQmx.Task doTask = new();
-            string channel = $"{_deviceName}/{portName}";
-
-            doTask.DOChannels.CreateChannel(
-                channel,
-                "",
-                ChannelLineGrouping.OneChannelForAllLines);
-
-            DigitalSingleChannelWriter writer = new(doTask.Stream);
-            doTask.Start();
-            writer.WriteSingleSamplePort(false, value);
-            doTask.Stop();
-
-
-            // debug statement: remove later
-            //Console.WriteLine($"[{_deviceName}] Set {portName} = 0x{value:X2}");
+            // 2. Update the Mock State
+            if (_portStates.ContainsKey(portName))
+            {
+                _portStates[portName] = value;
+            }
+            else
+            {
+                _portStates.Add(portName, value);
+            }
         }
 
-        // GetBits: read an 8-bit value from a digital input port
+        // GetBits: read an 8-bit value from a specified mock port
         internal byte GetBits(string portName)
         {
+            /* turning direction config off for mock version
+             * 
             // validate that we can read from specified port
             if (!portDirections.TryGetValue(portName, out bool isOutput))
                 throw new InvalidOperationException($"Port {portName} not configured.");
 
             if (isOutput)
                 throw new InvalidOperationException($"Cannot read from {portName}: port is configured as OUTPUT.");
+            */
 
-            using NationalInstruments.DAQmx.Task diTask = new();
-            string channel = $"{_deviceName}/{portName}";
-
-            diTask.DIChannels.CreateChannel(
-                channel,
-                "",
-                ChannelLineGrouping.OneChannelForAllLines);
-
-            DigitalSingleChannelReader reader = new(diTask.Stream);
-            byte value = reader.ReadSingleSamplePortByte();
-
-            return value;
+            return _portStates.TryGetValue(portName, out byte val) ? val : (byte)0; ;
         }
 
-        // ANALOG INPUT — Read voltage from an AI channel
+        // ANALOG INPUT — Simulate a voltage
         internal double GetVoltage(int channel)
         {
-            if (!isAnalogInputBoard)
-                throw new InvalidOperationException(($"{_deviceName}: Cannot read voltage — invalid board type"));
+            // We can determine if this board supports AI based on naming convention or config
+            // For now, we simulate a sine wave based on time to create a nice moving graph
 
-            using NationalInstruments.DAQmx.Task aiTask = new();
-            string channelName = $"{_deviceName}/ai{channel}";
+            double time = DateTime.Now.Millisecond / 1000.0;
+            double mockVoltage = 2.5 * Math.Sin(2 * Math.PI * time) + 2.5; // Oscillates between 0V and 5V
 
-            aiTask.AIChannels.CreateVoltageChannel(
-                channelName,
-                "",
-                AITerminalConfiguration.Differential,   // Differential mode
-                -5.0, 5.0,                              // Input range
-                AIVoltageUnits.Volts);
-
-            AnalogSingleChannelReader reader = new(aiTask.Stream);
-            double voltage = reader.ReadSingleSample();
-
-            return voltage;
+            return mockVoltage;
         }
 
         private void ConfigureBoardPorts(int boardNum)
@@ -128,22 +124,7 @@ namespace IctCustomControlBoard
         {
             bool isOutput = GetDirectionFromConfig(direction);
 
-            using NationalInstruments.DAQmx.Task configTask = new();
-            string channel = $"{_deviceName}/{portName}";
-            if (isOutput)
-            {
-                configTask.DOChannels.CreateChannel(channel, "", ChannelLineGrouping.OneChannelForAllLines);
-            }
-            else
-            {
-                configTask.DIChannels.CreateChannel(channel, "", ChannelLineGrouping.OneChannelForAllLines);
-            }
-
-            configTask.Start();
-            configTask.Stop();
-
-            //MessageBox.Show($"portname{portName} getting direction{isOutput}");
-            // Store configuration in dictionary
+            // Just saving the direction to the dictionary
             portDirections[portName] = isOutput;
         }
 
@@ -183,24 +164,22 @@ namespace IctCustomControlBoard
         // default is usually 'Dev1' 'Dev2' etc, but can be changed
         internal string GetBoardPort()
         {
-            Device board = DaqSystem.Local.LoadDevice(_deviceName);
-
-            return board.DeviceID;
+            return _deviceName;
         }
         // this should return either USB-6002 or USB-6501
         internal string GetBoardType()
         {
-            Device board = DaqSystem.Local.LoadDevice(_deviceName);
-
-            return board.ProductType;
+            if (_deviceName == "Dev4" ||  _deviceName == "test4")
+            {
+                return "USB-6002";
+            }
+            else return "USB-6501";
         }
 
         // this should return a unique serial identifier for the board
         internal long GetBoardSerialNum()
         {
-            Device board = DaqSystem.Local.LoadDevice(_deviceName);
-
-            return board.SerialNumber;
+            return 1248;
         }
 
         public void Dispose()

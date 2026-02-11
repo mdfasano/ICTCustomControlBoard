@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Configurations>Debug;Release;Testing</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,10 +19,12 @@
     </Content>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="../IctCustomControlBoard\IctCustomControlBoard.csproj">
-      <Private>True</Private>
-    </ProjectReference>
-  </ItemGroup>
+	<ItemGroup Condition=" '$(Configuration)' == 'Testing' ">
+		<ProjectReference Include="..\MockCustomControlBoard\MockCustomControlBoard.csproj" />
+	</ItemGroup>
+	
+	<ItemGroup Condition=" '$(Configuration)' != 'Testing' ">
+		<ProjectReference Include="..\IctCustomControlBoard\IctCustomControlBoard.csproj" />
+	</ItemGroup>
 
 </Project>
