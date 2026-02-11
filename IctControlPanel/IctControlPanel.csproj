@@ -14,9 +14,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="mapping.json">
+    <None Remove="notes.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="mapping.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </EmbeddedResource>
+    <EmbeddedResource Include="notes.md" />
   </ItemGroup>
 
 	<ItemGroup Condition=" '$(Configuration)' == 'Testing' ">
