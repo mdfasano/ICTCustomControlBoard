@@ -90,7 +90,9 @@ namespace IctControlPanel
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Config Error: {ex.Message}\n\n check that app.config matches internal device names in NI-Max");
+                MessageBox.Show($"Config Error: {ex.Message}\n\n " +
+                    $"check that app.config matches internal device names in NI-Max \n\n " +
+                    $"Also make sure all 4 devices are connected");
                 this.Close();
             }
         }
