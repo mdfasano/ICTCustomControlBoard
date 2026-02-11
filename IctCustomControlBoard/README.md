@@ -35,3 +35,7 @@ The `BoardManager` class provides the main interface to interact with connected 
 | `GetVoltages()` | Returns a tuple `(v1, v2)` containing the voltages from the two analog input channels. |
 | `GetBoardInfo()` | Returns an array of four `BoardInfo` structs, each containing metadata about the connected boards. |
 
+## Testing Functionality
+
+This library comes with a mock version that simulates its behavior but does not require any connected hardware to function.
+It comes as a standalone Library that can be imported and used in exactly the same way as the actual IctCustomControlBoard library, so any code making use of this library will not have to be modified to utilize this testing feature.
