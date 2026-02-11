@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Drawing;
 using System.Text.Json;
+using System.Reflection;
+using System.IO;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using IctCustomControlBoard;
@@ -289,9 +291,35 @@ namespace IctControlPanel
         // loads the mapping of bits -> labels from mapping.json
         private void LoadMapping()
         {
+            string jsonString = string.Empty;
+            string externalPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "mapping.json");
             try
             {
-                string jsonString = File.ReadAllText("mapping.json");
+                if (File.Exists(externalPath))
+                {
+                    jsonString = File.ReadAllText(externalPath);
+
+                }
+                else
+                {
+                    // 2. Fallback: Load from Embedded Resource if local file does not exist
+                    var assembly = Assembly.GetExecutingAssembly();
+                    // Ensure this matches your [Namespace].[Filename]
+                    string resourceName = "IctControlPanel.mapping.json";
+
+                    using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+                    {
+                        if (stream == null) throw new Exception("Embedded resource not found.");
+                        using StreamReader reader = new(stream);
+                        jsonString = reader.ReadToEnd();
+                    }
+
+                    // Export the embedded version to a file if it is gone
+                    // This creates a template for the user to edit!
+                    File.WriteAllText(externalPath, jsonString);
+                }
+
+                // parse json
                 var data = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(jsonString);
 
                 _inputMapping = data?.ContainsKey("InputMapping") == true ? data["InputMapping"] : [];
@@ -300,6 +328,7 @@ namespace IctControlPanel
             catch (Exception ex)
             {
                 MessageBox.Show($"Error loading config: {ex.Message}");
+
             }
         }
 
