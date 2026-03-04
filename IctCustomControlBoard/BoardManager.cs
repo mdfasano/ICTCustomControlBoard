@@ -58,9 +58,10 @@ namespace IctCustomControlBoard
 
             // -------- Board 4 --------
             // this is a different device (6002) and has pull-down resistors instead
-            byte b4_port0 = board4.GetBits("port0");
-            byte b4_port1 = board4.GetBits("port1"); // Do I care that these ports are 4 bit
-            byte b4_port2 = board4.GetBits("port2"); // and 1 bit in size?
+            // board was physically changed to also have pullup resistors, so we are inverting here too to get appropriate readings
+            byte b4_port0 = (byte)~board4.GetBits("port0");
+            byte b4_port1 = (byte)~board4.GetBits("port1"); // Do I care that these ports are 4 bit
+            byte b4_port2 = (byte)~board4.GetBits("port2"); // and 1 bit in size?
 
             // Pack everything into a single ulong
             ulong packed = 0;
