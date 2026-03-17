@@ -11,6 +11,22 @@ namespace IctCustomControlBoard
         private readonly CustomBoard board3;
         private readonly CustomBoard board4;
 
+        // array location = logical bit, integer = physical bit
+        // device2 starts at bit 24
+        private readonly int[] outputBitmap =
+        {
+            15, 14, 13, 12, 20, 19, 18, 17, 0, 1, 2, 3, 4, 23, 22, 21,
+            5, 6, 7, 8, 9, 39, 38, 37, 47, 46, 45, 44, 43, 42, 41, 40
+        };
+
+        // array location = logical bit, integer = physical bit
+        // device2 starts at bit 24
+        private readonly int[] inputBitmap =
+        {
+            15, 14, 13, 12, 23, 22, 21, 20, 19, 18, 17, 16, 0, 1, 2, 3, 4, 5, 26, 27,
+            28, 29, 30, 31, 32, 33, 6, 7, 8, 9, 10, 11, 24, 25, 34
+        };
+
 
         public BoardManager()
         {
@@ -27,6 +43,9 @@ namespace IctCustomControlBoard
         // make more dynamic via app.config later
         public void SetBits(ulong bits)
         {
+            //remap the incoming ulong to something the hardware understands
+            bits = RemapBits(bits, outputBitmap);
+
             // -------- Board 1 --------
             byte b1_port0 = (byte)((bits >> 0) & 0xFF);
             byte b1_port1 = (byte)((bits >> 8) & 0xFF);
@@ -71,6 +90,9 @@ namespace IctCustomControlBoard
             packed |= (ulong)b4_port0 << 24;
             packed |= (ulong)b4_port1 << 32;
             packed |= (ulong)b4_port2 << 40;
+
+            //remap this packaged data to something the format users will expect
+            packed = RemapBits(packed, inputBitmap);
             return packed;
         }
 
@@ -93,6 +115,22 @@ namespace IctCustomControlBoard
             GetSingleBoardInfo(board4, out BoardInfo board4info);
 
             return [board1info, board2info, board3info, board4info];
+        }
+
+        private ulong RemapBits(ulong input, int[] map)
+        {
+            ulong output = 0;
+
+            for (int i = 0; i < map.Length; i++) // iterate through the map
+            {
+                if (((input >> i) & 1UL) == 1) // checks if the bit at 'i' is set to 1.
+                {
+                    int n = map[i];
+                    output |= (1UL << n); // flips "output's" nth bit
+                }
+            }
+
+            return output;
         }
 
         // helper function for GetBoardInfo
