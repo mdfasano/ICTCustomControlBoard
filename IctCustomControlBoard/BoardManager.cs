@@ -15,7 +15,7 @@ namespace IctCustomControlBoard
         // device2 starts at bit 24
         private readonly int[] outputBitmap =
         {
-            15, 14, 13, 12, 20, 19, 18, 17, 0, 1, 2, 3, 4, 23, 22, 21,
+            14, 13, 15, 12, 16, 20, 19, 18, 17, 0, 1, 2, 3, 4, 23, 22, 21,
             5, 6, 7, 8, 9, 39, 38, 37, 47, 46, 45, 44, 43, 42, 41, 40
         };
 
@@ -23,8 +23,8 @@ namespace IctCustomControlBoard
         // device2 starts at bit 24
         private readonly int[] inputBitmap =
         {
-            15, 14, 13, 12, 23, 22, 21, 20, 19, 18, 17, 16, 0, 1, 2, 3, 4, 5, 26, 27,
-            28, 29, 30, 31, 32, 33, 6, 7, 8, 9, 10, 11, 24, 25, 34
+            15, 14, 12, 50 /* this is an unused bit */, 34, 21, 20, 19, 18, 17, 16, 0, 1, 2, 3, 4, 5, 26, 27,
+            28, 29, 30, 31, 32, 33, 6, 7, 8, 9, 10, 11, 24, 25, 13, 23, 22
         };
 
 
