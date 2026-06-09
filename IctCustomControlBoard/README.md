@@ -32,7 +32,7 @@ The `BoardManager` class provides the main interface to interact with connected 
 |--------|-------------|
 | `SetBits(ulong bits)` | Accepts a pattern of 8-bit chunks as a `ulong`. The bits are parsed and written to the digital output ports of the board. |
 | `GetBits()` | Returns all digital port values packaged as a single `ulong`. Each chunk of 8 bits represents the state of a port. |
-| `GetVoltages()` | Returns a tuple `(v1, v2)` containing the voltages from the two analog input channels. |
+| `GetCurrents()` | Returns a tuple `(Current1, Current2)` containing values read from the two analog input channels, converted to current. |
 | `GetBoardInfo()` | Returns an array of four `BoardInfo` structs, each containing metadata about the connected boards. |
 
 ## Testing Functionality

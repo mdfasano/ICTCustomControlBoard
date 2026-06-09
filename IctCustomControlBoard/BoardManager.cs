@@ -97,12 +97,20 @@ namespace IctCustomControlBoard
         }
 
         // only two voltages to read, so return as a tuple
-        public (double v1, double v2) GetVoltages()
+        // ADC Channel 0 - Leakage
+        // Output of current sense donut with 10 wraps, works from 5ma to 25ma represented by
+        // 1V to 5V(10% to 50%) ( 5ma to 25ma)
+        //
+        // ADC Channel 1 - Load
+        // Output of current sense donut with 1 wraps, works from 5A to 25A represented by
+        // 1V to 5V(10% to 50%) (5A to 25A)
+        public (double Current1, double Current2) GetCurrents()
         {
-            double v1 = board4.GetVoltage(0);
-            double v2 = board4.GetVoltage(1);
+            // convert the read voltage to current before returning
+            double Current1 = (board4.GetVoltage(0) - 1) * 5; // ADC Channel 0 Leakage
+            double Current2 = (board4.GetVoltage(1) -1) * 5; // ADC Channel 1 Load
 
-            return (v1, v2);
+            return (Current1, Current2);
         }
 
         // returns an array holding four instances of the boardinfo struct
