@@ -66,12 +66,13 @@ namespace IctControlPanel
             // --- OUTPUTS COLUMN (Device 1 & 2) ---
             var outputsContainer = CreateCategoryGroup("Outputs (Device1 and Device2)");
 
-            // Example data for Device 1 & 2 - Replace labels with your actual mapping
+            // Order represents visual display. Unrelated to bit ordering
             outputsContainer.Controls.Add(BuildDeviceSection("Outputs", [
                 ["KT5", "KT6", "KT7", "KT8", "KT9", "KT1", "KT2", "KT3", "KT4"],
-                ["KRG1", "KRG2", "KRG3", "KRG4", "KRG5"],
+                ["KRG1", "KRG2", "KRG3", "KRG4", "KRG5", "KRG6", "KRG7", "KRG8"],
                 ["KL1", "KL4KL5", "KL7KL8", "KL6KL7KL8_EN"],
-                ["KRFT", "KCFT1", "KCFT2", "KINJ1"]
+                ["KRFT", "KCFT1", "KCFT2", "KINJ1"],
+                ["KRN1", "KRN2", "KRN3", "KRN4", "KRN5", "KRN6", "KRN7", "KRN8"]
             ]));
             mainPanel.Controls.Add(outputsContainer); // attach output group to main panel
 
@@ -143,7 +144,7 @@ namespace IctControlPanel
         }
          
         // creates a layout group
-        private static FlowLayoutPanel CreateCategoryGroup(string title)
+        private static FlowLayoutPanel CreateCategoryGroup(string title) 
         {
             var panel = new FlowLayoutPanel
             {
@@ -378,7 +379,7 @@ namespace IctControlPanel
                 var label = container.GetControlFromPosition(0, 0) as Label;
                 if (label == null) return;
 
-                // 1. Find where this button lives in the 64-bit sequence
+                // Find where this button lives in the 64-bit sequence
                 int globalIndex = _outputMapping.IndexOf(label.Text);
                 if (globalIndex == -1) return;
 
@@ -388,7 +389,7 @@ namespace IctControlPanel
 
                 try
                 {
-                    // 2. Determine if we are turning it ON or OFF
+                    // Determine if we are turning it ON or OFF
                     bool isTurningOn = btn.BackColor != Color.LimeGreen;
 
                     if (isTurningOn)
