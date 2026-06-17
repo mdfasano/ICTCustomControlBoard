@@ -46,7 +46,6 @@ namespace IctControlPanel
             };
             Controls.Add(mainPanel);
 
-            // Device 3
             var inputsContainer = CreateCategoryGroup("Readback Inputs (Device3 and Device4)");
 
             inputsContainer.Controls.Add(BuildDeviceSection(
@@ -55,9 +54,9 @@ namespace IctControlPanel
                     // the order displayed here is not logical, the grouping is for display clarity
                     ["KL1", "KL4", "KL5", "KL6", "KL7", "KL8"],
                     ["KT1", "KT2", "KT3", "KT4", "KT5", "KT6", "KT7", "KT8", "KT9"],
-                    ["KRFT", "KCFT1", "KCFT2", "KINJ1"],
-                    ["KRN1", "KRN2", "KRN3", "KRN4", "KRN5", "KRN6", "KRN7", "KRN8"],
                     ["KRG1", "KRG2", "KRG3", "KRG4", "KRG5", "KRG6", "KRG7", "KRG8"],
+                    ["KRN1", "KRN2", "KRN3", "KRN4", "KRN5", "KRN6", "KRN7", "KRN8"],
+                    ["KRFT", "KCFT1", "KCFT2", "KINJ1"],
                     ["AI1", "AI2"]
                 ]));
             mainPanel.Controls.Add(inputsContainer); // attach inputgroup to main panel
@@ -69,11 +68,11 @@ namespace IctControlPanel
             // Order represents visual display. Unrelated to bit ordering
             outputsContainer.Controls.Add(BuildDeviceSection("Outputs",
             [
+                ["KL1", "KL4KL5", "KL7KL8", "KL6KL7KL8_EN"],
                 ["KT1", "KT2", "KT3", "KT4", "KT5", "KT6", "KT7", "KT8", "KT9"],
                 ["KRG1", "KRG2", "KRG3", "KRG4", "KRG5", "KRG6", "KRG7", "KRG8"],
-                ["KL1", "KL4KL5", "KL7KL8", "KL6KL7KL8_EN"],
-                ["KRFT", "KCFT1", "KCFT2", "KINJ1"],
-                ["KRN1", "KRN2", "KRN3", "KRN4", "KRN5", "KRN6", "KRN7", "KRN8"]
+                ["KRN1", "KRN2", "KRN3", "KRN4", "KRN5", "KRN6", "KRN7", "KRN8"],
+                ["KRFT", "KCFT1", "KCFT2", "KINJ1"]
             ]));
             mainPanel.Controls.Add(outputsContainer); // attach output group to main panel
 
@@ -176,7 +175,7 @@ namespace IctControlPanel
         // returns an object holding the display data
         private TableLayoutPanel BuildLightWithLabel(string labelText, bool isInteractive = false)
         {
-            // 1. Container as a TableLayoutPanel for automatic centering
+            // Container as a TableLayoutPanel for automatic centering
             var container = new TableLayoutPanel
             {
                 AutoSize = true,
@@ -188,7 +187,7 @@ namespace IctControlPanel
             // Make the single column center its contents
             container.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
 
-            // 2. The Label - now with AutoSize to handle long text
+            // The Label - now with AutoSize to handle long text
             var label = new Label
             {
                 Text = labelText,
@@ -200,7 +199,7 @@ namespace IctControlPanel
                 Margin = new Padding(0, 0, 0, 2)
             };
 
-            // 3. The Light Panel
+            // The Light Panel
             var light = new Button
             {
                 Width = 18,
@@ -217,11 +216,10 @@ namespace IctControlPanel
             if (isInteractive)
             {
                 light.Cursor = Cursors.Hand;
-                // POINT TO THE CLEAN FUNCTION
                 light.Click += HandleOutputClick;
             }
 
-            // 4. Add to the table grid
+            // Add to the table grid
             container.Controls.Add(label, 0, 0); // Row 0
             container.Controls.Add(light, 0, 1); // Row 1
 
@@ -243,7 +241,7 @@ namespace IctControlPanel
             };
 
             // Define buttons
-            Button btnFetch = new() { Text = "get readback data", Width = 80, Height = 30, BackColor = Color.LimeGreen, Cursor = Cursors.Hand };
+            Button btnFetch = new() { Text = "get", Width = 80, Height = 30, BackColor = Color.LimeGreen, Cursor = Cursors.Hand };
             Button btnReset = new() { Text = "clear", Width = 80, Height = 30, Cursor = Cursors.Hand };
 
             // Events

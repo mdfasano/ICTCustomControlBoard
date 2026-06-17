@@ -11,7 +11,8 @@ namespace IctCustomControlBoard
         private readonly CustomBoard board3;
         private readonly CustomBoard board4;
 
-        // array location = logical bit, integer = physical bit
+        // array location = logical bit (marks bitmap),
+        // integer = physical bit
         // device2 starts at bit 24
         private readonly int[] outputBitmap =
         {
@@ -19,12 +20,13 @@ namespace IctCustomControlBoard
             5, 6, 7, 8, 9, 39, 38, 37, 47, 46, 45, 44, 43, 42, 41, 40
         };
 
-        // array location = logical bit, integer = physical bit
+        // array location = physical bit (pin),
+        // integer = logical bit (mark's bitmap),
         // device2 starts at bit 24
         private readonly int[] inputBitmap =
         {
-            15, 14, 12, 50 /* this is an unused bit */, 34, 21, 20, 19, 18, 17, 16, 0, 1, 2, 3, 4, 5, 26, 27,
-            28, 29, 30, 31, 32, 33, 6, 7, 8, 9, 10, 11, 24, 25, 13, 23, 22
+            11, 12, 13, 14, 15, 16, 25, 26, 27, 28, 29, 30, 2, 33, 1, 0, 10, 9, 8,
+            7, 6, 5, 35, 34, 31, 32, 17, 18, 19, 20, 21, 22, 23, 24, 4
         };
 
 
@@ -92,6 +94,7 @@ namespace IctCustomControlBoard
 
             //remap this packaged data to something the format users will expect
             packed = RemapBits(packed, inputBitmap);
+
             return packed;
         }
 
