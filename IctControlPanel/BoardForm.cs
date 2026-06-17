@@ -15,18 +15,23 @@ namespace IctControlPanel
         private List<string> _inputMapping = [];
         private List<string> _outputMapping = [];
 
+        private List<string> _unusedLabels = ["KRG3", "KRG4", "KRG7", "KRG8", "KRN3", "KRN4", "KRN7", "KRN8", "KINJ1"];
+
+        private Label _lblAI0Value;
+        private Label _lblAI1Value;
+
         // This stores the state of ALL output bits (0-63)
         private ulong _outputMasterState = 0;
 
         private BoardManager _boardManager;
         public BoardForm()
         {
-            // 1. Makes the window take up the whole screen
+            // Makes the window take up the whole screen
             this.WindowState = FormWindowState.Maximized;
 
             this.Load += new EventHandler(BoardForm_Load);
 
-            // 2. Removes the standard window borders
+            // Removes the standard window borders
             //this.FormBorderStyle = FormBorderStyle.None;
             Text = "ICT Control Panel";
             AutoScroll = true;
@@ -54,12 +59,43 @@ namespace IctControlPanel
                     // the order displayed here is not logical, the grouping is for display clarity
                     ["KL1", "KL4", "KL5", "KL6", "KL7", "KL8"],
                     ["KT1", "KT2", "KT3", "KT4", "KT5", "KT6", "KT7", "KT8", "KT9"],
-                    ["KRG1", "KRG2", "KRG3", "KRG4", "KRG5", "KRG6", "KRG7", "KRG8"],
-                    ["KRN1", "KRN2", "KRN3", "KRN4", "KRN5", "KRN6", "KRN7", "KRN8"],
-                    ["KRFT", "KCFT1", "KCFT2", "KINJ1"],
-                    ["AI1", "AI2"]
-                ]));
+                    ["KRG1", "KRG2", "KRG5", "KRG6"],
+                    ["KRN1", "KRN2", "KRN5", "KRN6"],
+                    ["KRFT", "KCFT1", "KCFT2"],
+                    ["KRG3", "KRG4", "KRG7", "KRG8", "KRN3", "KRN4", "KRN7", "KRN8", "KINJ1"]
+                ]
+                
+                ));
             mainPanel.Controls.Add(inputsContainer); // attach inputgroup to main panel
+
+            // -- ANALOG INPUTS SECTION --
+            var analogContainer = CreateCategoryGroup("Analog Inputs");
+            var analogLayout = new TableLayoutPanel
+            {
+                AutoSize = true,
+                ColumnCount = 2,
+                RowCount = 2,
+                Padding = new Padding(10)
+            };
+            // Configure column spacing
+            analogLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50f));
+            analogLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50f));
+
+            // Row 0: Headers
+            var lblAI0Header = new Label { Text = "AI0 - Leakage Current", Font = new Font("Segoe UI", 9, FontStyle.Bold), AutoSize = true, Anchor = AnchorStyles.None };
+            var lblAI1Header = new Label { Text = "AI1 - Load Current", Font = new Font("Segoe UI", 9, FontStyle.Bold), AutoSize = true, Anchor = AnchorStyles.None };
+
+            // Row 1: The dynamic value readouts
+            _lblAI0Value = new Label { Text = "---", Font = new Font("Segoe UI", 12, FontStyle.Regular), AutoSize = true, Anchor = AnchorStyles.None, Margin = new Padding(10) };
+            _lblAI1Value = new Label { Text = "---", Font = new Font("Segoe UI", 12, FontStyle.Regular), AutoSize = true, Anchor = AnchorStyles.None, Margin = new Padding(10) };
+
+            analogLayout.Controls.Add(lblAI0Header, 0, 0);
+            analogLayout.Controls.Add(lblAI1Header, 1, 0);
+            analogLayout.Controls.Add(_lblAI0Value, 0, 1);
+            analogLayout.Controls.Add(_lblAI1Value, 1, 1);
+
+            analogContainer.Controls.Add(analogLayout);
+            mainPanel.Controls.Add(analogContainer); // Insert into the UI right after binary inputs
 
 
             // --- OUTPUTS COLUMN (Device 1 & 2) ---
@@ -241,14 +277,17 @@ namespace IctControlPanel
             };
 
             // Define buttons
-            Button btnFetch = new() { Text = "get", Width = 80, Height = 30, BackColor = Color.LimeGreen, Cursor = Cursors.Hand };
+            Button btnFetch = new() { Text = "get (enter)", Width = 100, Height = 30, BackColor = Color.LimeGreen, Cursor = Cursors.Hand };
             Button btnReset = new() { Text = "clear", Width = 80, Height = 30, Cursor = Cursors.Hand };
+
+            this.AcceptButton = btnFetch;
 
             // Events
             btnReset.Click += (s, e) => BulkSetLights(null);
             btnFetch.Click += (s, e) => {
                 ulong latestData = GetDeviceData();
                 UpdateInputLightsFromData(latestData);
+                UpdateAnalogReadings();
             };
 
             // Add to panel
@@ -256,6 +295,28 @@ namespace IctControlPanel
             buttonPanel.Controls.Add(btnFetch);
 
             return buttonPanel;
+        }
+
+        private void UpdateAnalogReadings()
+        {
+            if (_boardManager == null) return;
+
+            try
+            {
+                // Execute library call
+                var (current0, current1) = _boardManager.GetCurrents();
+                var (voltage0, voltage1) = _boardManager.GetVoltages();
+
+                // Apply formatted string to UI elements
+                _lblAI0Value.Text = $"{current0:F2} mA, {voltage0:F2} V";
+                _lblAI1Value.Text = $"{current1:F2} A, {voltage1:F2} V";
+            }
+            catch (Exception ex)
+            {
+                _lblAI0Value.Text = "Error";
+                _lblAI1Value.Text = "Error";
+                MessageBox.Show($"Error reading analog ports: {ex.Message}");
+            }
         }
 
         // turns 'lights' on (green) or off (red)
@@ -295,6 +356,9 @@ namespace IctControlPanel
 
                 // If the label is "EMPTY" or null, skip the dictionary lookup
                 if (string.IsNullOrEmpty(label) || label.StartsWith("EMPTY")) continue;
+
+                // leave unused labels grey
+                if (_unusedLabels.Contains(label)) continue;
 
                 // Extract the bit at position 'i'
                 bool isOn = (packedData & (1UL << i)) != 0;

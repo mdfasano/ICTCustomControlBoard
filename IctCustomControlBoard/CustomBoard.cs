@@ -26,6 +26,7 @@ namespace IctCustomControlBoard
 
             // get boardnumber from device name
             int boardNum = GetBoardNumberFromDeviceName(deviceName);
+            if (boardNum == 4) isAnalogInputBoard = true;
             ConfigureBoardPorts(boardNum);
 
         }

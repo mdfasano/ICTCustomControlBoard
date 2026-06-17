@@ -115,6 +115,15 @@ namespace IctCustomControlBoard
             return (Current1, Current2);
         }
 
+        // for testing: reading just voltages
+        public (double Voltage0, double Voltage1) GetVoltages()
+        {
+            double Voltage0 = board4.GetVoltage(0);
+            double Voltage1 = board4.GetVoltage(1);
+
+            return (Voltage0, Voltage1);
+        }
+
         // returns an array holding four instances of the boardinfo struct
         public BoardInfo[] GetBoardInfo()
         {
