@@ -67,8 +67,9 @@ namespace IctControlPanel
             var outputsContainer = CreateCategoryGroup("Outputs (Device1 and Device2)");
 
             // Order represents visual display. Unrelated to bit ordering
-            outputsContainer.Controls.Add(BuildDeviceSection("Outputs", [
-                ["KT5", "KT6", "KT7", "KT8", "KT9", "KT1", "KT2", "KT3", "KT4"],
+            outputsContainer.Controls.Add(BuildDeviceSection("Outputs",
+            [
+                ["KT1", "KT2", "KT3", "KT4", "KT5", "KT6", "KT7", "KT8", "KT9"],
                 ["KRG1", "KRG2", "KRG3", "KRG4", "KRG5", "KRG6", "KRG7", "KRG8"],
                 ["KL1", "KL4KL5", "KL7KL8", "KL6KL7KL8_EN"],
                 ["KRFT", "KCFT1", "KCFT2", "KINJ1"],
@@ -248,7 +249,6 @@ namespace IctControlPanel
             // Events
             btnReset.Click += (s, e) => BulkSetLights(null);
             btnFetch.Click += (s, e) => {
-                // Call your logic here
                 ulong latestData = GetDeviceData();
                 UpdateInputLightsFromData(latestData);
             };
@@ -354,7 +354,6 @@ namespace IctControlPanel
         {
             try
             {
-                // This is where you call your library code
                 return _boardManager.GetBits();
 
                 // FOR TESTING: Returning a dummy value (Bit 0 and Bit 7 on)
@@ -371,7 +370,7 @@ namespace IctControlPanel
         // calls boardmanager.setbits 
         private void HandleOutputClick(object sender, EventArgs e)
         {
-            // 1. Identify which button was clicked
+            // Identify which button was clicked
             if (sender is Button btn && btn.Parent is TableLayoutPanel container)
             {
                 // Find the label associated with this button to get the hardware name
@@ -403,10 +402,10 @@ namespace IctControlPanel
                         _outputMasterState &= ~bitMask;
                     }
 
-                    // 3. Send the entire updated 64-bit state to the board
+                    // Send the entire updated 64-bit state to the board
                     _boardManager.SetBits(_outputMasterState);
 
-                    // 4. Update UI
+                    // Update UI
                     btn.BackColor = isTurningOn ? Color.LimeGreen : Color.LightGray;
                 }
                 catch (Exception ex)

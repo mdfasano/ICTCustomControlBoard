@@ -4,6 +4,7 @@
     "KL1",
     "KL4",
     "KL6",
+
     "EMPTY",
     "KINJ1",
 
@@ -60,7 +61,9 @@
     "KL4KL5",
     "KL6KL7KL8_EN",
     "KL7KL8",
+
     "KINJ1",
+
     "KT1",
     "KT2",
     "KT3",
@@ -70,18 +73,20 @@
     "KT7",
     "KT8",
     "KT9",
+
     "KRFT",
     "KCFT1",
     "KCFT2",
+
     "KRG1",
     "KRG2",
     "KRG3",
     "KRG4",
     "KRG5",
-
     "KRG6",
     "KRG7",
     "KRG8",
+
     "KRN1",
     "KRN2",
     "KRN3",
@@ -90,6 +95,7 @@
     "KRN6",
     "KRN7",
     "KRN8",
+
     "EMPTY",
     "EMPTY",
     "EMPTY",

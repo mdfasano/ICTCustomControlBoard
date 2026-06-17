@@ -39,8 +39,7 @@ namespace IctCustomControlBoard
             SetBits((ulong)0); // initialize everything to be off
         }
 
-        // assumes setting bits on exactly board1 and board2 for now
-        // make more dynamic via app.config later
+        // setting bits on exactly board1 and board2
         public void SetBits(ulong bits)
         {
             //remap the incoming ulong to something the hardware understands
@@ -65,7 +64,7 @@ namespace IctCustomControlBoard
             board2.SetBits("port2", b2_port2);
         }
 
-        // assumes reading from board3 and board4
+        // reading from board3 and board4
         public ulong GetBits()
         {
             // -------- Board 3 --------
@@ -125,7 +124,7 @@ namespace IctCustomControlBoard
             return [board1info, board2info, board3info, board4info];
         }
 
-        private ulong RemapBits(ulong input, int[] map)
+        private static ulong RemapBits(ulong input, int[] map)
         {
             ulong output = 0;
 
