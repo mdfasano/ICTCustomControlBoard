@@ -1,10 +1,5 @@
-﻿using System;
-using System.Drawing;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Reflection;
-using System.IO;
-using System.Windows.Forms;
-using System.Collections.Generic;
 using IctCustomControlBoard;
 
 namespace IctControlPanel
@@ -15,16 +10,18 @@ namespace IctControlPanel
         private List<string> _inputMapping = [];
         private List<string> _outputMapping = [];
 
-        private List<string> _unusedLabels = ["KRG3", "KRG4", "KRG7", "KRG8", "KRN3", "KRN4", "KRN7", "KRN8", "KINJ1"];
+        private readonly List<string> _unusedLabels = ["KRG3", "KRG4", "KRG7", "KRG8", "KRN3", "KRN4", "KRN7", "KRN8", "KINJ1"];
 
-        private Label _lblAI0Value;
-        private Label _lblAI1Value;
+        private readonly Label _lblAI0Value, _lblAI1Value, _lblAI2Value, _lblAI3Value;
+
 
         // This stores the state of ALL output bits (0-63)
         private ulong _outputMasterState = 0;
 
         private BoardManager _boardManager;
+#pragma warning disable CS8618 // disabled because assignment happens within a function called in constructor which warning system cant see
         public BoardForm()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. 
         {
             // Makes the window take up the whole screen
             this.WindowState = FormWindowState.Maximized;
@@ -74,25 +71,36 @@ namespace IctControlPanel
             {
                 AutoSize = true,
                 ColumnCount = 2,
-                RowCount = 2,
+                RowCount = 3,
                 Padding = new Padding(10)
             };
             // Configure column spacing
             analogLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50f));
             analogLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50f));
+            analogLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50f));
+            analogLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50f));
+
 
             // Row 0: Headers
-            var lblAI0Header = new Label { Text = "AI0 - Leakage Current", Font = new Font("Segoe UI", 9, FontStyle.Bold), AutoSize = true, Anchor = AnchorStyles.None };
-            var lblAI1Header = new Label { Text = "AI1 - Load Current", Font = new Font("Segoe UI", 9, FontStyle.Bold), AutoSize = true, Anchor = AnchorStyles.None };
+            var lblAI0Header = new Label { Text = "AI0 - ?", Font = new Font("Segoe UI", 9, FontStyle.Bold), AutoSize = true, Anchor = AnchorStyles.None };
+            var lblAI1Header = new Label { Text = "AI1 - ??", Font = new Font("Segoe UI", 9, FontStyle.Bold), AutoSize = true, Anchor = AnchorStyles.None };
+            var lblAI2Header = new Label { Text = "AI2 - ???", Font = new Font("Segoe UI", 9, FontStyle.Bold), AutoSize = true, Anchor = AnchorStyles.None };
+            var lblAI3Header = new Label { Text = "AI3 - ????", Font = new Font("Segoe UI", 9, FontStyle.Bold), AutoSize = true, Anchor = AnchorStyles.None };
 
             // Row 1: The dynamic value readouts
             _lblAI0Value = new Label { Text = "---", Font = new Font("Segoe UI", 12, FontStyle.Regular), AutoSize = true, Anchor = AnchorStyles.None, Margin = new Padding(10) };
             _lblAI1Value = new Label { Text = "---", Font = new Font("Segoe UI", 12, FontStyle.Regular), AutoSize = true, Anchor = AnchorStyles.None, Margin = new Padding(10) };
+            _lblAI2Value = new Label { Text = "---", Font = new Font("Segoe UI", 12, FontStyle.Regular), AutoSize = true, Anchor = AnchorStyles.None, Margin = new Padding(10) };
+            _lblAI3Value = new Label { Text = "---", Font = new Font("Segoe UI", 12, FontStyle.Regular), AutoSize = true, Anchor = AnchorStyles.None, Margin = new Padding(10) };
 
             analogLayout.Controls.Add(lblAI0Header, 0, 0);
             analogLayout.Controls.Add(lblAI1Header, 1, 0);
+            analogLayout.Controls.Add(lblAI2Header, 0, 2);
+            analogLayout.Controls.Add(lblAI3Header, 1, 2);
             analogLayout.Controls.Add(_lblAI0Value, 0, 1);
             analogLayout.Controls.Add(_lblAI1Value, 1, 1);
+            analogLayout.Controls.Add(_lblAI2Value, 0, 3);
+            analogLayout.Controls.Add(_lblAI3Value, 1, 3);
 
             analogContainer.Controls.Add(analogLayout);
             mainPanel.Controls.Add(analogContainer); // Insert into the UI right after binary inputs
@@ -119,7 +127,7 @@ namespace IctControlPanel
         }
 
 
-        private void BoardForm_Load(object sender, EventArgs e)
+        private void BoardForm_Load(object? sender, EventArgs e)
         {
             try
             {
@@ -304,17 +312,21 @@ namespace IctControlPanel
             try
             {
                 // Execute library call
-                var (current0, current1) = _boardManager.GetCurrents();
-                var (voltage0, voltage1) = _boardManager.GetVoltages();
+                var (current0, current1, current2, current3) = _boardManager.GetCurrents();
+                var (voltage0, voltage1, voltage2, voltage3) = _boardManager.GetVoltages();
 
                 // Apply formatted string to UI elements
                 _lblAI0Value.Text = $"{current0:F2} mA, {voltage0:F2} V";
                 _lblAI1Value.Text = $"{current1:F2} A, {voltage1:F2} V";
+                _lblAI2Value.Text = $"{current2:F2} mA, {voltage2:F2} V";
+                _lblAI3Value.Text = $"{current3:F2} A, {voltage3:F2} V";
             }
             catch (Exception ex)
             {
                 _lblAI0Value.Text = "Error";
                 _lblAI1Value.Text = "Error";
+                _lblAI2Value.Text= "Error";
+                _lblAI3Value.Text = "Error";
                 MessageBox.Show($"Error reading analog ports: {ex.Message}");
             }
         }
@@ -381,23 +393,19 @@ namespace IctControlPanel
                 }
                 else
                 {
-                    // 2. Fallback: Load from Embedded Resource if local file does not exist
+                    // Fallback: Load from Embedded Resource if local file does not exist
                     var assembly = Assembly.GetExecutingAssembly();
-                    // Ensure this matches your [Namespace].[Filename]
+                    // Ensure this matches [Namespace].[Filename]
                     string resourceName = "IctControlPanel.mapping.json";
-
-                    using (Stream stream = assembly.GetManifestResourceStream(resourceName))
-                    {
-                        if (stream == null) throw new Exception("Embedded resource not found.");
-                        using StreamReader reader = new(stream);
-                        jsonString = reader.ReadToEnd();
-                    }
+                    using Stream stream = assembly.GetManifestResourceStream(resourceName) 
+                        ?? throw new InvalidOperationException($"Embedded resource '{resourceName}' not found.");
+                    using StreamReader reader = new(stream);
+                    jsonString = reader.ReadToEnd();
 
                     // Export the embedded version to a file if it is gone
                     // This creates a template for the user to edit!
                     File.WriteAllText(externalPath, jsonString);
                 }
-
                 // parse json
                 var data = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(jsonString);
 
@@ -407,7 +415,6 @@ namespace IctControlPanel
             catch (Exception ex)
             {
                 MessageBox.Show($"Error loading config: {ex.Message}");
-
             }
         }
 
@@ -430,18 +437,17 @@ namespace IctControlPanel
 
         // executes when a 'light' in the output section is clicked
         // calls boardmanager.setbits 
-        private void HandleOutputClick(object sender, EventArgs e)
+        private void HandleOutputClick(object? sender, EventArgs e)
         {
             // Identify which button was clicked
             if (sender is Button btn && btn.Parent is TableLayoutPanel container)
             {
                 // Find the label associated with this button to get the hardware name
                 // The label is in Row 0, the button is in Row 1
-                var label = container.GetControlFromPosition(0, 0) as Label;
-                if (label == null) return;
+                if(container.GetControlFromPosition(0, 0) is not Label clickedButton) return;
 
                 // Find where this button lives in the 64-bit sequence
-                int globalIndex = _outputMapping.IndexOf(label.Text);
+                int globalIndex = _outputMapping.IndexOf(clickedButton.Text);
                 if (globalIndex == -1) return;
 
                 // Note: If Device 2 starts at index 24, globalIndex is already correct.

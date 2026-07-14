@@ -15,19 +15,19 @@ namespace IctCustomControlBoard
         // integer = physical bit
         // device2 starts at bit 24
         private readonly int[] outputBitmap =
-        {
+        [
             14 /*0*/, 13, 15, 12, 16, 20/*5*/, 19, 18, 17, 0, 1/*10*/, 2, 3, 4, 23, 22/*15*/, 21,
             5, 6, 7, 8/*20*/, 9, 39, 38, 37, 47/*25*/, 46, 45, 44, 43, 42/*30*/, 41, 40
-        };
+        ];
 
         // array location = physical bit (pin),
         // integer = logical bit (mark's bitmap),
         // device2 starts at bit 24
         private readonly int[] inputBitmap =
-        {
+        [
             11/*0*/, 12, 13, 14, 15, 16/*5*/, 25, 26, 27, 28, 29/*10*/, 30, 2, 33, 1, 0/*15*/, 10, 9, 8,
             7, 6/*20*/, 5, 35, 34, 31, 32/*25*/, 17, 18, 19, 20, 21/*30*/, 22, 23, 24, 4
-        };
+        ];
         #endregion
 
         public BoardManager()

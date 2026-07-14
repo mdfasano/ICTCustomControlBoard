@@ -99,8 +99,8 @@ namespace IctCustomControlBoard
                 channelName,
                 "",
                 //AITerminalConfiguration.Differential,     // Differential mode
-                AITerminalConfiguration.Nrse,               // non-referenced single ended (doesnt use onboard ground reference)
-                //AITerminalConfiguration.Rse,              // referenced single ended (uses onboard ground pin as reference)
+                //AITerminalConfiguration.Nrse,             // non-referenced single ended (doesnt use onboard ground reference)
+                AITerminalConfiguration.Rse,                // referenced single ended (uses onboard ground pin as reference)
                 -5.0, 5.0,                              // Input range
                 AIVoltageUnits.Volts);
 

@@ -6,7 +6,8 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+	<Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
     <Configurations>Debug;Release;Testing</Configurations>
   </PropertyGroup>
 
@@ -22,5 +23,7 @@
       <HintPath>C:\Program Files (x86)\National Instruments\MeasurementStudioVS2012\DotNET\Assemblies (64-bit)\Current\NationalInstruments.DAQmx.dll</HintPath>
     </Reference>
   </ItemGroup>
-
+  <Target Name="EnforceX64Only" BeforeTargets="Build">
+	<Error Condition="'$(Platform)' != 'x64'" Text="Build halted! This project relies on unmanaged 64-bit DAQmx libraries and MUST be compiled as x64. Please switch your active platform in Configuration Manager." />
+  </Target>
 </Project>
