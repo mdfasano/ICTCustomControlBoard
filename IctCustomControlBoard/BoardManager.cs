@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
+﻿using System.Configuration;
+using System.Drawing;
 
 namespace IctCustomControlBoard
 {
@@ -11,6 +10,7 @@ namespace IctCustomControlBoard
         private readonly CustomBoard board3;
         private readonly CustomBoard board4;
 
+        #region bitmaps to translate between logical and physical bit references
         // array location = logical bit (marks bitmap),
         // integer = physical bit
         // device2 starts at bit 24
@@ -28,7 +28,7 @@ namespace IctCustomControlBoard
             11/*0*/, 12, 13, 14, 15, 16/*5*/, 25, 26, 27, 28, 29/*10*/, 30, 2, 33, 1, 0/*15*/, 10, 9, 8,
             7, 6/*20*/, 5, 35, 34, 31, 32/*25*/, 17, 18, 19, 20, 21/*30*/, 22, 23, 24, 4
         };
-
+        #endregion
 
         public BoardManager()
         {
@@ -41,6 +41,7 @@ namespace IctCustomControlBoard
             SetBits((ulong)0); // initialize everything to be off
         }
 
+        #region Public Functions
         // setting bits on exactly board1 and board2
         public void SetBits(ulong bits)
         {
@@ -92,7 +93,7 @@ namespace IctCustomControlBoard
             packed |= (ulong)b4_port1 << 32;
             packed |= (ulong)b4_port2 << 40;
 
-            //remap this packaged data to something the format users will expect
+            // translate physical bit data to user-expected logical organization
             packed = RemapBits(packed, inputBitmap);
 
             return packed;
@@ -106,22 +107,26 @@ namespace IctCustomControlBoard
         // ADC Channel 1 - Load
         // Output of current sense donut with 1 wraps, works from 5A to 25A represented by
         // 1V to 5V(10% to 50%) (5A to 25A)
-        public (double Current1, double Current2) GetCurrents()
+        public (double Current1, double Current2, double Current3, double Current4) GetCurrents()
         {
             // convert the read voltage to current before returning
-            double Current1 = (board4.GetVoltage(0) - 1) * 5; // ADC Channel 0 Leakage
-            double Current2 = (board4.GetVoltage(1) -1) * 5; // ADC Channel 1 Load
+            double Current1 = (board4.GetVoltage(0) - 1) * 5; // AIN0: Leakage
+            double Current2 = (board4.GetVoltage(1) - 1) * 5; // AIN1: Load
+            double Current3 = (board4.GetVoltage(2) - 1) * 5; // AIN2: 24V_OK
+            double Current4 = (board4.GetVoltage(3) - 1) * 5; // 24VESTOP_OK
 
-            return (Current1, Current2);
+            return (Current1, Current2, Current3, Current4);
         }
 
         // for testing: reading just voltages
-        public (double Voltage0, double Voltage1) GetVoltages()
+        public (double Voltage0, double Voltage1, double Voltage2, double Voltage3) GetVoltages()
         {
             double Voltage0 = board4.GetVoltage(0);
             double Voltage1 = board4.GetVoltage(1);
+            double Voltage2 = board4.GetVoltage(2);
+            double Voltage3 = board4.GetVoltage(3);
 
-            return (Voltage0, Voltage1);
+            return (Voltage0, Voltage1, Voltage2, Voltage3);
         }
 
         // returns an array holding four instances of the boardinfo struct
@@ -135,21 +140,24 @@ namespace IctCustomControlBoard
 
             return [board1info, board2info, board3info, board4info];
         }
+        #endregion
 
-        private static ulong RemapBits(ulong input, int[] map)
+        #region Helpers
+        // translates between physical and logical bit 'locations'
+        private static ulong RemapBits(ulong bits, int[] map)
         {
-            ulong output = 0;
+            ulong translatedBits = 0;
 
             for (int i = 0; i < map.Length; i++) // iterate through the map
             {
-                if (((input >> i) & 1UL) == 1) // checks if the bit at 'i' is set to 1.
+                if (((bits >> i) & 1UL) == 1) // checks if the bit at 'i' is set to 1.
                 {
                     int n = map[i];
-                    output |= (1UL << n); // flips "output's" nth bit
+                    translatedBits |= (1UL << n); // flips "output's" nth bit
                 }
             }
 
-            return output;
+            return translatedBits;
         }
 
         // helper function for GetBoardInfo
@@ -171,5 +179,6 @@ namespace IctCustomControlBoard
             public long Board_serial_number { get; } = boardSerialNumber; // unique serial identifier
             public string Board_port { get; } = boardPort; // Internal name of the board. defaults to Dev1, Dev2, etc
         }
+        #endregion
     }
 }
